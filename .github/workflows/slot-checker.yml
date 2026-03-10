@@ -4,6 +4,8 @@ on:
   schedule:
     # Every 5 min (avoid :00 - GitHub often delays top of hour)
     - cron: '2,7,12,17,22,27,32,37,42,47,52,57 * * * *'
+  push:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
