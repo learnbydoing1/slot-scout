@@ -1,0 +1,29 @@
+{
+  "name": "noura-slot-checker",
+  "version": "1.0.0",
+  "description": "Automated slot checker for Noura Driving School final road test booking",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "debug": "node src/index.js --debug",
+    "check": "node src/index.js --once"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "noura",
+    "driving-school",
+    "slot-checker",
+    "playwright",
+    "automation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "node-notifier": "^10.0.1",
+    "nodemailer": "^6.9.7",
+    "playwright": "^1.40.0"
+  }
+}

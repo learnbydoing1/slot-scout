@@ -1,0 +1,43 @@
+name: Noura Slot Checker
+
+on:
+  schedule:
+    # Run every 10 minutes (UTC)
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allow manual run
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Create .env
+        run: |
+          echo "NOURA_EMAIL=${{ secrets.NOURA_EMAIL }}" >> .env
+          echo "NOURA_PASSWORD=${{ secrets.NOURA_PASSWORD }}" >> .env
+          echo "NOTIFY_EMAIL=${{ secrets.NOTIFY_EMAIL }}" >> .env
+          echo "SMTP_HOST=${{ secrets.SMTP_HOST }}" >> .env
+          echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
+          echo "SMTP_USER=${{ secrets.SMTP_USER }}" >> .env
+          echo "SMTP_PASS=${{ secrets.SMTP_PASS }}" >> .env
+          echo "CHECK_INTERVAL_MIN=5" >> .env
+          echo "PLAYWRIGHT_HEADLESS=true" >> .env
+
+      - name: Run slot check
+        run: npm run check
+        env:
+          CI: true
