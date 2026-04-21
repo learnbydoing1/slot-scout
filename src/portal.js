@@ -405,6 +405,20 @@ async function acceptTermsAndConditions(page) {
   }
 }
 
+async function isTrainingIncomplete(page) {
+  return page.evaluate(() => {
+    const body = document.body.innerText || '';
+    const progressMatch = body.match(/(\d+)\s*%/);
+    if (!progressMatch) return false;
+    const pct = parseInt(progressMatch[1], 10);
+    if (pct >= 100) return false;
+
+    const hasTrainingPath = /training\s*path/i.test(body);
+    const hasDashboard = /welcome\s.*\sto\s/i.test(body) || /your\s*training\s*progress/i.test(body);
+    return hasTrainingPath && hasDashboard;
+  });
+}
+
 function getNoSlotsSelector() {
   return NO_SLOTS_MESSAGE;
 }
@@ -434,6 +448,7 @@ module.exports = {
   dismissOverlay,
   acceptTermsAndConditions,
   isTermsPopupVisible,
+  isTrainingIncomplete,
   getNoSlotsSelector,
   hasNoSlotsMessage,
 };

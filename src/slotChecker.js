@@ -3,7 +3,7 @@
  */
 
 const logger = require('./logger');
-const { hasNoSlotsMessage, switchToEnglish, navigateToBookingPage } = require('./portal');
+const { hasNoSlotsMessage, switchToEnglish, navigateToBookingPage, isTrainingIncomplete } = require('./portal');
 const { notify } = require('./notifier');
 const { login, saveAuthState } = require('./auth');
 
@@ -19,16 +19,24 @@ async function runCheckLoop(page, context, config) {
       logger.info('Session expired, re-logging in...');
       await login(page, config);
       await switchToEnglish(page, config);
+
+      if (await isTrainingIncomplete(page)) {
+        logger.info('Training path is incomplete — booking not available yet. Skipping check.');
+        return false;
+      }
+
       await navigateToBookingPage(page, config);
       saveAuthState(context, authStatePath);
     }
+    return true;
   }
 
   async function performCheck() {
     checkCount += 1;
     logger.info(`Check #${checkCount} - ${new Date().toLocaleTimeString()}`);
 
-    await ensureOnBookingPage();
+    const ready = await ensureOnBookingPage();
+    if (!ready) return false;
 
     try {
       await page.reload({ waitUntil: 'networkidle', timeout: config.timeout });

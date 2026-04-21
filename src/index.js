@@ -15,7 +15,7 @@ const { chromium } = require('playwright');
 const { config, init } = require('./config');
 const logger = require('./logger');
 const { login, saveAuthState, loadAuthState } = require('./auth');
-const { switchToEnglish, navigateToBookingPage, dismissOverlay } = require('./portal');
+const { switchToEnglish, navigateToBookingPage, dismissOverlay, isTrainingIncomplete } = require('./portal');
 const { runCheckLoop } = require('./slotChecker');
 
 const isDebug = process.argv.includes('--debug');
@@ -74,6 +74,12 @@ async function main() {
       logger.info('Using existing session');
       await dismissOverlay(page);
       await switchToEnglish(page, cfg);
+    }
+
+    if (await isTrainingIncomplete(page)) {
+      logger.info('Training path is incomplete — booking not available yet. Skipping check.');
+      await browser.close();
+      return;
     }
 
     await navigateToBookingPage(page, cfg);
